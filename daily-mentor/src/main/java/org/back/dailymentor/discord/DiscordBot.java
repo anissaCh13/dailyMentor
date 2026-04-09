@@ -7,11 +7,13 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 @Getter
+//@ConditionalOnProperty(name = "discord.enabled", havingValue = "true", matchIfMissing = false)
 public class DiscordBot {
   private final JDA jda;
 

@@ -2,5 +2,6 @@ spring:
   application:
       name: daily-mentor
 discord:
+  enabled: false
   token: ${DISCORD_BOT_TOKEN}
 
