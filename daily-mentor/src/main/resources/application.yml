@@ -4,4 +4,5 @@ spring:
 discord:
   enabled: false
   token: ${DISCORD_BOT_TOKEN}
+  user-id: 1377224683904303146
 
