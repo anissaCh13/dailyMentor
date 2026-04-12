@@ -7,7 +7,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @SpringBootTest
 class DailyMentorApplicationTests {
-  
   @MockitoBean
   private DiscordBot discordBot;
 
