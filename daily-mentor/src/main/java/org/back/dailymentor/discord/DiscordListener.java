@@ -6,18 +6,16 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.back.dailymentor.learning.LearningService;
 import org.back.dailymentor.model.SessionState;
+import org.back.dailymentor.session.entity.UserSession;
+import org.back.dailymentor.session.service.SessionService;
 import org.springframework.stereotype.Component;
 
 @Component
+@AllArgsConstructor
 public class DiscordListener extends ListenerAdapter {
   
   private final LearningService learningService;
-
-  private SessionState currentState = SessionState.WAITING_START;
-
-  public DiscordListener(LearningService learningService) {
-    this.learningService = learningService;
-  }
+  private final SessionService sessionService;
 
 
   @Override
@@ -31,47 +29,60 @@ public class DiscordListener extends ListenerAdapter {
       return;
     }
 
-
+    String userId = event.getAuthor().getId();
     String message = event.getMessage().getContentRaw();
+
+    UserSession session = sessionService.getOrCreateSession(userId);
     
-    handleUserResponse(event, message);
+    handleUserResponse(event, session, message);
   }
 
-  private void handleUserResponse(MessageReceivedEvent event, String message) {
+  private void handleUserResponse(MessageReceivedEvent event, UserSession session,String message) {
 
     String normalized = message.toLowerCase().trim();
     
-    switch (currentState) {
-      case WAITING_START ->  handleStart(event, normalized);
-      case WAITING_FEEDBACK -> handleFeedback(event, normalized);
+    switch (session.state()) {
+      case WAITING_START ->  handleStart(event, session,normalized);
+      case WAITING_FEEDBACK -> handleFeedback(event, session,normalized);
       default -> event.getChannel()
           .sendMessage("❓ Je ne comprends pas, réponds par 'oui' ou 'non'")
           .queue();
     }
   }
 
-  private void handleStart(MessageReceivedEvent event, String message) {
+  private void handleStart(MessageReceivedEvent event, UserSession session,String message) {
 
     if (message.equals("oui")) {
 
       String lesson = learningService.generateDailyLesson();
 
       event.getChannel().sendMessage(lesson).queue();
+      
+      var sessionUpdate = UserSession.builder()
+          .userId(session.userId())
+          .state(SessionState.WAITING_FEEDBACK)
+          .build();
+      
+      sessionService.save(sessionUpdate);
 
-      currentState = SessionState.WAITING_FEEDBACK;
       return;
     }
 
     if (message.equals("non")) {
       event.getChannel().sendMessage("👍 OK, à demain !").queue();
-      currentState = SessionState.IDLE;
+      var sessionUpdate = UserSession.builder()
+          .userId(session.userId())
+          .state(SessionState.IDLE)
+          .build();
+
+      sessionService.save(sessionUpdate);
       return;
     }
 
     event.getChannel().sendMessage("❓ Réponds par 'oui' ou 'non'").queue();
   }
 
-  private void handleFeedback(MessageReceivedEvent event, String message) {
+  private void handleFeedback(MessageReceivedEvent event, UserSession session,String message) {
 
     if (message.equals("oui")) {
 
@@ -79,7 +90,12 @@ public class DiscordListener extends ListenerAdapter {
           .sendMessage("🎉 Parfait ! On passe à un nouveau sujet demain.")
           .queue();
 
-      currentState = SessionState.IDLE;
+      var sessionUpdate = UserSession.builder()
+          .userId(session.userId())
+          .state(SessionState.IDLE)
+          .build();
+
+      sessionService.save(sessionUpdate);
       return;
     }
 
@@ -89,7 +105,12 @@ public class DiscordListener extends ListenerAdapter {
 
       event.getChannel().sendMessage(explanation).queue();
 
-      currentState = SessionState.WAITING_FEEDBACK;
+      var sessionUpdate = UserSession.builder()
+          .userId(session.userId())
+          .state(SessionState.WAITING_FEEDBACK)
+          .build();
+
+      sessionService.save(sessionUpdate);
       return;
     }
 
