@@ -8,19 +8,13 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class DiscordService {
-
   private final DiscordBot discordBot;
 
-
   public void sendPrivateMessage(String userId, String message) {
-
     JDA jda = discordBot.getJda();
 
     User user = jda.retrieveUserById(userId).complete();
 
-    user.openPrivateChannel()
-        .flatMap(channel -> channel.sendMessage(message))
-        .queue();
+    user.openPrivateChannel().flatMap(channel -> channel.sendMessage(message)).queue();
   }
-
 }
