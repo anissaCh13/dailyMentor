@@ -1,6 +1,7 @@
 package org.back.dailymentor.discord;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -10,6 +11,7 @@ import org.back.dailymentor.session.entity.UserSession;
 import org.back.dailymentor.session.service.SessionService;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 @AllArgsConstructor
 public class DiscordListener extends ListenerAdapter {
@@ -56,11 +58,12 @@ public class DiscordListener extends ListenerAdapter {
 
       String lesson = learningService.generateDailyLesson();
 
-      event.getChannel().sendMessage(lesson).queue();
+      sendMessage(event, lesson);
       
       var sessionUpdate = UserSession.builder()
           .userId(session.userId())
-          .state(SessionState.WAITING_FEEDBACK)
+          //.state(SessionState.WAITING_FEEDBACK)
+          .state(SessionState.WAITING_START)
           .build();
       
       sessionService.save(sessionUpdate);
@@ -69,7 +72,7 @@ public class DiscordListener extends ListenerAdapter {
     }
 
     if (message.equals("non")) {
-      event.getChannel().sendMessage("👍 OK, à demain !").queue();
+      sendMessage(event, "👍 OK, à demain !");
       var sessionUpdate = UserSession.builder()
           .userId(session.userId())
           .state(SessionState.IDLE)
@@ -79,7 +82,7 @@ public class DiscordListener extends ListenerAdapter {
       return;
     }
 
-    event.getChannel().sendMessage("❓ Réponds par 'oui' ou 'non'").queue();
+    sendMessage(event, "❓ Réponds par 'oui' ou 'non'");
   }
 
   private void handleFeedback(MessageReceivedEvent event, UserSession session,String message) {
@@ -103,8 +106,8 @@ public class DiscordListener extends ListenerAdapter {
 
       String explanation = learningService.explainAgain();
 
-      event.getChannel().sendMessage(explanation).queue();
-
+      sendMessage(event, explanation);
+      
       var sessionUpdate = UserSession.builder()
           .userId(session.userId())
           .state(SessionState.WAITING_FEEDBACK)
@@ -114,6 +117,16 @@ public class DiscordListener extends ListenerAdapter {
       return;
     }
 
-    event.getChannel().sendMessage("❓ Réponds par 'oui' ou 'non'").queue();
+    sendMessage(event, "❓ Réponds par 'oui' ou 'non'");
+  }
+  
+  private void sendMessage(MessageReceivedEvent event, String message){
+
+    int maxLength = 2000;
+
+    for (int i = 0; i < message.length(); i += maxLength) {
+      String part = message.substring(i, Math.min(message.length(), i + maxLength));
+      event.getChannel().sendMessage(part).queue();
+    }
   }
 }
