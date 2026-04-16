@@ -1,38 +1,18 @@
 package org.back.dailymentor.learning;
 
+import lombok.RequiredArgsConstructor;
+import org.back.dailymentor.ai.AiService;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class LearningService {
+  
+  private final AiService aiService;
 
   public String generateDailyLesson() {
 
-    return """
-        🎯 Sujet du jour : Différence entre @Component, @Service et @Repository (Spring)
-
-        ❓ Question :
-        Pourquoi utilise-t-on des annotations différentes alors qu'elles font presque la même chose ?
-
-        💡 Réponse :
-        Techniquement, @Component, @Service et @Repository sont similaires :
-        → elles permettent à Spring de détecter un bean automatiquement.
-
-        MAIS leur rôle est sémantique :
-
-        - @Component → générique
-        - @Service → logique métier
-        - @Repository → accès aux données
-
-        👉 Avantage :
-        - code plus lisible
-        - meilleure organisation
-        - permet à Spring d’ajouter des comportements spécifiques (ex: gestion des exceptions)
-
-        🧠 À retenir :
-        Toujours utiliser l’annotation la plus spécifique.
-
-        👉 Est-ce que tu as compris ? (oui / non)
-        """;
+    return aiService.generateLesson();
   }
 
   public String explainAgain() {
