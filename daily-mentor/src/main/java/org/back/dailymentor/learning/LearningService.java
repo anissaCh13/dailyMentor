@@ -2,6 +2,8 @@ package org.back.dailymentor.learning;
 
 import lombok.RequiredArgsConstructor;
 import org.back.dailymentor.ai.AiService;
+import org.back.dailymentor.model.SessionState;
+import org.back.dailymentor.session.entity.UserSession;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -10,9 +12,16 @@ public class LearningService {
   
   private final AiService aiService;
 
-  public String generateDailyLesson() {
+  public String generateAdaptiveContent(UserSession session) {
+    if (session.state() == SessionState.WAITING_START) {
+      return aiService.generateNewLesson(session);
+    }
 
-    return aiService.generateLesson();
+    if (session.state() == SessionState.WAITING_FEEDBACK) {
+      return aiService.explainAgain(session);
+    }
+
+    return aiService.generateNewLesson(session);
   }
 
   public String explainAgain() {
