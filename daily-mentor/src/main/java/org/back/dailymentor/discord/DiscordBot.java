@@ -7,7 +7,6 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -15,6 +14,8 @@ import org.springframework.stereotype.Component;
 @Getter
 //@ConditionalOnProperty(name = "discord.enabled", havingValue = "true", matchIfMissing = false)
 public class DiscordBot {
+  private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DiscordBot.class);
+
   private final JDA jda;
 
   public DiscordBot(@Value("${discord.token}") String token, DiscordListener discordListener)
@@ -39,5 +40,9 @@ public class DiscordBot {
     if (jda != null) {
       jda.shutdown();
     }
+  }
+
+  public JDA getJda() {
+    return jda;
   }
 }
