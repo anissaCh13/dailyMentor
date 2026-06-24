@@ -1,0 +1,22 @@
+{
+  "472b2075-21b4-4891-b073-c7f4a9c720f3" : {
+    "id" : "472b2075-21b4-4891-b073-c7f4a9c720f3",
+    "userId" : "1377224683904303146",
+    "lessonId" : null,
+    "sessionState" : "COMPLETED",
+    "topicMasteryLevel" : null,
+    "userState" : null,
+    "startTimestamp" : "2026-06-23T20:47:38.699336Z",
+    "endTimestamp" : "2026-06-23T21:09:34.412257Z"
+  },
+  "ac2d23e8-a32c-4c0c-b352-a12dcce4b4be" : {
+    "id" : "ac2d23e8-a32c-4c0c-b352-a12dcce4b4be",
+    "userId" : "1377224683904303146",
+    "lessonId" : null,
+    "sessionState" : "NOT_STARTED",
+    "topicMasteryLevel" : null,
+    "userState" : null,
+    "startTimestamp" : "2026-06-23T21:09:41.752320Z",
+    "endTimestamp" : null
+  }
+}
