@@ -56,14 +56,14 @@ public class DiscordListener extends ListenerAdapter {
 
     if (message.equals("oui")) {
 
-      String lesson = learningService.generateDailyLesson();
+      String lesson = learningService.generateAdaptiveContent(session);
 
       sendMessage(event, lesson);
       
       var sessionUpdate = UserSession.builder()
           .userId(session.userId())
-          //.state(SessionState.WAITING_FEEDBACK)
-          .state(SessionState.WAITING_START)
+          .state(SessionState.WAITING_FEEDBACK)
+          .currentTopic(extractTopic(lesson))
           .build();
       
       sessionService.save(sessionUpdate);
@@ -76,6 +76,7 @@ public class DiscordListener extends ListenerAdapter {
       var sessionUpdate = UserSession.builder()
           .userId(session.userId())
           .state(SessionState.IDLE)
+          .currentTopic("")
           .build();
 
       sessionService.save(sessionUpdate);
@@ -96,6 +97,7 @@ public class DiscordListener extends ListenerAdapter {
       var sessionUpdate = UserSession.builder()
           .userId(session.userId())
           .state(SessionState.IDLE)
+          .currentTopic("")
           .build();
 
       sessionService.save(sessionUpdate);
@@ -104,13 +106,14 @@ public class DiscordListener extends ListenerAdapter {
 
     if (message.equals("non")) {
 
-      String explanation = learningService.explainAgain();
+      String explanation = learningService.generateAdaptiveContent(session);
 
       sendMessage(event, explanation);
       
       var sessionUpdate = UserSession.builder()
           .userId(session.userId())
           .state(SessionState.WAITING_FEEDBACK)
+          .currentTopic(extractTopic(explanation))
           .build();
 
       sessionService.save(sessionUpdate);
@@ -128,5 +131,16 @@ public class DiscordListener extends ListenerAdapter {
       String part = message.substring(i, Math.min(message.length(), i + maxLength));
       event.getChannel().sendMessage(part).queue();
     }
+  }
+
+  private String extractTopic(String lesson) {
+
+    if (lesson.contains("🎯")) {
+      int start = lesson.indexOf("🎯");
+      int end = lesson.indexOf("❓", start);
+      return lesson.substring(start, end);
+    }
+
+    return "unknown";
   }
 }
